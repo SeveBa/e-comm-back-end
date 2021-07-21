@@ -7,10 +7,16 @@ router.get('/', (req, res) => {
   // find all categories
   // be sure to include its associated Products
   Category.findAll({
-    include: [Product],
+    include: [
+      {
+        model: Product,
+        attributes: ['id', 'product_name', 'price', 'stock', 'category_id']
+      },
+    ],
+  }).then(response => res.json(response)).catch(err => {
+    console.log(err)
+    res.status(500).json(err)
   })
-    .then((categories) => res.json(categories))
-    .catch((err) => res.status(500).json(err));
 });
 
 router.get('/:id', (req, res) => {
@@ -20,27 +26,46 @@ router.get('/:id', (req, res) => {
     where: {
       id: req.params.id,
     },
-    include: [Product],
+    include: [
+      {
+        model: Product,
+        attributes: ['id', 'product_name', 'price', 'stock', 'category_id']
+      },
+    ],
+  }).then(response => res.json(response)).catch(err => {
+    console.log(err)
+    res.status(400).json(err)
   })
-    .then((category) => res.json(category))
-    .catch((err) => res.status(400).json(err));
 });
 
 router.post('/', (req, res) => {
+  // update a category by its `id` value
   Category.create(req.body)
     .then((category) => res.status(200).json(category))
     .catch((err) => res.status(400).json(err));
 });
 
+router.post('/', (req, res) => {
+  // create a new category
+  Category.create({
+    id: req.body.id,
+    category_name: req.body.category_name
+  }).then(response => res.json(response)).catch(err => {
+    console.log(err)
+    res.status(500).json(err)
+  })
+});
+
 router.put('/:id', (req, res) => {
   // update a category by its `id` value
   Category.update(req.body, {
-    where: {
-      id: req.params.id,
-    },
+      where: {
+        id: req.params.id
+      }
+  }).then(response => res.json(response)).catch(err => {
+    console.log(err)
+    res.status(404).json(err)
   })
-    .then((category) => res.status(200).json(category))
-    .catch((err) => res.status(400).json(err));
 });
 
 router.delete('/:id', (req, res) => {
@@ -50,8 +75,10 @@ router.delete('/:id', (req, res) => {
       id: req.params.id,
     },
   })
-    .then((category) => res.status(200).json(category))
-    .catch((err) => res.status(400).json(err));
+  .then(response => res.json(response)).catch(err => {
+    console.log(err)
+    res.status(500).json(err)
+  })
 });
 
 module.exports = router;
